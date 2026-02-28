@@ -1,0 +1,27 @@
+{
+    "Index": {
+        "title": "Добро пожаловать в систему Daladan"
+    },
+    "Producer": {
+        "title": "Мое Поле",
+        "harvestLog": "Журнал Урожая",
+        "cropName": "Название Культуры",
+        "quantity": "Количество",
+        "ownTransport": "Я предоставлю свой транспорт",
+        "submit": "Добавить"
+    },
+    "Driver": {
+        "title": "Панель Водителя",
+        "availableJobs": "Доступные Заказы",
+        "noJobs": "Пока нет доступных заказов"
+    },
+    "Retailer": {
+        "title": "Fresh Direct",
+        "comingSoon": "Скоро..."
+    },
+    "Chat": {
+        "title": "Сообщения",
+        "typeMessage": "Введите сообщение...",
+        "send": "Отправить"
+    }
+}

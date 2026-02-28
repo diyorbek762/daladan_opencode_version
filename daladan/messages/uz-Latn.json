@@ -1,0 +1,27 @@
+{
+    "Index": {
+        "title": "Daladan tizimiga xush kelibsiz"
+    },
+    "Producer": {
+        "title": "Mening Maydonim",
+        "harvestLog": "Hosil Jurnali",
+        "cropName": "Ekin Nomi",
+        "quantity": "Miqdori",
+        "ownTransport": "Men o'z transportimni taqdim etaman",
+        "submit": "Qo'shish"
+    },
+    "Driver": {
+        "title": "Haydovchi Paneli",
+        "availableJobs": "Mavjud Ishlar",
+        "noJobs": "Hozircha bo'sh ishlar yo'q"
+    },
+    "Retailer": {
+        "title": "Fresh Direct",
+        "comingSoon": "Tez kunda..."
+    },
+    "Chat": {
+        "title": "Xabarlar",
+        "typeMessage": "Xabar yozing...",
+        "send": "Yuborish"
+    }
+}

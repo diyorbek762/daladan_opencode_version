@@ -1,0 +1,27 @@
+{
+    "Index": {
+        "title": "Daladan тизимига хуш келибсиз"
+    },
+    "Producer": {
+        "title": "Менинг Майдоним",
+        "harvestLog": "Ҳосил Журнали",
+        "cropName": "Экин Номи",
+        "quantity": "Миқдори",
+        "ownTransport": "Мен ўз транспортимни тақдим этаман",
+        "submit": "Қўшиш"
+    },
+    "Driver": {
+        "title": "Ҳайдовчи Панели",
+        "availableJobs": "Мавжуд Ишлар",
+        "noJobs": "Ҳозирча бўш ишлар йўқ"
+    },
+    "Retailer": {
+        "title": "Fresh Direct",
+        "comingSoon": "Тез кунда..."
+    },
+    "Chat": {
+        "title": "Хабарлар",
+        "typeMessage": "Хабар ёзинг...",
+        "send": "Юбориш"
+    }
+}
