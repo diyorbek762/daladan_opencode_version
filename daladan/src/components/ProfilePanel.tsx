@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 type TrustProfile = {
@@ -23,12 +23,25 @@ type SupabaseProfile = {
     location: string | null;
 };
 
-const CONTACT_META: Record<string, { icon: string; color: string; bg: string; prefix: string }> = {
-    telegram: { icon: 'fa-brands fa-telegram', color: '#38BDF8', bg: '#0EA5E9', prefix: 'https://t.me/' },
-    whatsapp: { icon: 'fa-brands fa-whatsapp', color: '#4ADE80', bg: '#22C55E', prefix: 'https://wa.me/' },
-    phone: { icon: 'fa-solid fa-phone', color: '#818CF8', bg: '#6366F1', prefix: 'tel:' },
-    website: { icon: 'fa-solid fa-globe', color: '#C084FC', bg: '#A855F7', prefix: '' },
+const CONTACT_TYPES = [
+    { key: 'telegram', icon: 'fa-brands fa-telegram', color: '#38BDF8', placeholder: '@username' },
+    { key: 'whatsapp', icon: 'fa-brands fa-whatsapp', color: '#4ADE80', placeholder: '+998901234567' },
+    { key: 'phone', icon: 'fa-solid fa-phone', color: '#818CF8', placeholder: '+998901234567' },
+    { key: 'website', icon: 'fa-solid fa-globe', color: '#C084FC', placeholder: 'https://example.com' },
+];
+
+const CONTACT_META: Record<string, { icon: string; color: string; prefix: string }> = {
+    telegram: { icon: 'fa-brands fa-telegram', color: '#38BDF8', prefix: 'https://t.me/' },
+    whatsapp: { icon: 'fa-brands fa-whatsapp', color: '#4ADE80', prefix: 'https://wa.me/' },
+    phone: { icon: 'fa-solid fa-phone', color: '#818CF8', prefix: 'tel:' },
+    website: { icon: 'fa-solid fa-globe', color: '#C084FC', prefix: '' },
 };
+
+const DOC_TYPES = [
+    { key: 'certificate', label: 'Certificate', icon: '📜' },
+    { key: 'license', label: 'License', icon: '🪪' },
+    { key: 'passport', label: 'Passport', icon: '🛂' },
+];
 
 const DOC_ICONS: Record<string, string> = {
     license: '🪪', certificate: '📜', passport: '🛂',
@@ -39,6 +52,24 @@ export default function ProfilePanel({ onClose }: { onClose: () => void }) {
     const [profile, setProfile] = useState<SupabaseProfile | null>(null);
     const [trust, setTrust] = useState<TrustProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState<string | null>(null);
+
+    // ── Contact editing state ──
+    const [editingContacts, setEditingContacts] = useState(false);
+    const [contactValues, setContactValues] = useState<Record<string, string>>({});
+    const [savingContacts, setSavingContacts] = useState(false);
+
+    // ── Document upload state ──
+    const [showUpload, setShowUpload] = useState(false);
+    const [uploadDocType, setUploadDocType] = useState('certificate');
+    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const showToast = (msg: string) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3000);
+    };
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,35 +77,95 @@ export default function ProfilePanel({ onClose }: { onClose: () => void }) {
         });
     }, []);
 
-    useEffect(() => {
+    const loadData = async () => {
         if (!userId) return;
+        setLoading(true);
 
-        const load = async () => {
-            setLoading(true);
+        const { data: profileData } = await supabase
+            .from('profiles')
+            .select('username, email, phone, location')
+            .eq('id', userId)
+            .single();
+        if (profileData) setProfile(profileData);
 
-            // Fetch Supabase profile
-            const { data: profileData } = await supabase
-                .from('profiles')
-                .select('username, email, phone, location')
-                .eq('id', userId)
-                .single();
-            if (profileData) setProfile(profileData);
+        try {
+            const resp = await fetch(`/api/trust/users/${userId}/trust-profile`);
+            if (resp.ok) {
+                const data = await resp.json();
+                setTrust(data);
+                // Populate contact values for editing
+                const vals: Record<string, string> = {};
+                data.contacts?.forEach((c: any) => { vals[c.contact_type] = c.contact_value; });
+                setContactValues(vals);
+            }
+        } catch (e) {
+            console.warn('Trust profile fetch failed:', e);
+        }
 
-            // Fetch trust profile from FastAPI
+        setLoading(false);
+    };
+
+    useEffect(() => { loadData(); }, [userId]);
+
+    // ── Save contacts ──
+    const handleSaveContacts = async () => {
+        if (!userId) return;
+        setSavingContacts(true);
+        const token = localStorage.getItem('daladan_token') || '';
+
+        let saved = 0;
+        for (const ct of CONTACT_TYPES) {
+            const val = contactValues[ct.key]?.trim();
+            if (val) {
+                try {
+                    const resp = await fetch(`/api/trust/users/${userId}/contacts`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ contact_type: ct.key, contact_value: val, is_public: true }),
+                    });
+                    if (resp.ok) saved++;
+                } catch (e) { console.warn(`Failed to save ${ct.key}:`, e); }
+            }
+        }
+
+        setSavingContacts(false);
+        setEditingContacts(false);
+        showToast(`✅ ${saved} contact${saved !== 1 ? 's' : ''} saved!`);
+        await loadData();
+    };
+
+    // ── Upload document ──
+    const handleUploadDoc = async () => {
+        if (!userId || !uploadFile) return;
+        setUploading(true);
+        const token = localStorage.getItem('daladan_token') || '';
+
+        // Convert file to base64 data URL for storage
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const fileUrl = reader.result as string;
             try {
-                const resp = await fetch(`/api/trust/users/${userId}/trust-profile`);
+                const resp = await fetch(`/api/trust/users/${userId}/documents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ file_url: fileUrl.substring(0, 500), document_type: uploadDocType }),
+                });
                 if (resp.ok) {
-                    const data = await resp.json();
-                    setTrust(data);
+                    showToast('✅ Document uploaded successfully!');
+                    setShowUpload(false);
+                    setUploadFile(null);
+                    await loadData();
+                } else {
+                    const err = await resp.json().catch(() => ({}));
+                    showToast(`❌ ${err.detail || 'Upload failed'}`);
                 }
             } catch (e) {
-                console.warn('Trust profile fetch failed:', e);
+                showToast('❌ Upload failed');
             }
-
-            setLoading(false);
+            setUploading(false);
         };
-        load();
-    }, [userId]);
+        reader.readAsDataURL(uploadFile);
+    };
 
     const scoreValue = trust?.trust_score ?? 0;
     const dashOffset = 314 - (314 * Math.min(scoreValue, 100) / 100);
@@ -127,43 +218,84 @@ export default function ProfilePanel({ onClose }: { onClose: () => void }) {
                         )}
                     </div>
 
-                    {/* Contact Info */}
+                    {/* ═══ CONTACTS (Editable) ═══ */}
                     <div className="profile-section">
                         <div className="profile-section-label">
-                            <i className="fa-solid fa-address-card" style={{ fontSize: '0.65rem' }}></i> Contact Info
+                            <i className="fa-solid fa-address-card" style={{ fontSize: '0.65rem' }}></i> Contacts
+                            <button onClick={() => setEditingContacts(!editingContacts)}
+                                style={{
+                                    marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600, fontFamily: 'inherit',
+                                    color: editingContacts ? '#EF4444' : 'var(--agro-green)'
+                                }}>
+                                <i className={`fa-solid ${editingContacts ? 'fa-xmark' : 'fa-pen'}`} style={{ marginRight: '0.2rem' }}></i>
+                                {editingContacts ? 'Cancel' : 'Edit'}
+                            </button>
                         </div>
-                        <div className="profile-contact-list">
-                            {profile?.email && (
-                                <div className="profile-contact-row">
-                                    <i className="fa-solid fa-envelope" style={{ color: 'var(--text-muted)', width: '18px', fontSize: '0.7rem' }}></i>
-                                    <span>{profile.email}</span>
-                                </div>
-                            )}
-                            {profile?.phone && (
-                                <div className="profile-contact-row">
-                                    <i className="fa-solid fa-phone" style={{ color: 'var(--text-muted)', width: '18px', fontSize: '0.7rem' }}></i>
-                                    <span>{profile.phone}</span>
-                                </div>
-                            )}
-                            {trust?.contacts && trust.contacts.map(c => {
-                                const meta = CONTACT_META[c.contact_type] || CONTACT_META.website;
-                                const href = meta.prefix
-                                    ? `${meta.prefix}${c.contact_value.replace(/^[@+]/, '')}`
-                                    : c.contact_value;
-                                return (
-                                    <a key={c.id} href={href} target="_blank" rel="noopener noreferrer" className="profile-contact-row profile-contact-link" style={{ color: meta.color }}>
-                                        <i className={meta.icon} style={{ width: '18px', fontSize: '0.8rem' }}></i>
-                                        <span>{c.contact_value}</span>
-                                    </a>
-                                );
-                            })}
-                            {!profile?.email && !profile?.phone && (!trust?.contacts || trust.contacts.length === 0) && (
-                                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '0.3rem 0' }}>No contacts added</div>
-                            )}
-                        </div>
+
+                        {editingContacts ? (
+                            /* ── Edit Mode ── */
+                            <div style={{ padding: '0.75rem 0.85rem' }}>
+                                {CONTACT_TYPES.map(ct => (
+                                    <div key={ct.key} className="profile-edit-row">
+                                        <i className={ct.icon} style={{ color: ct.color, width: '20px', fontSize: '0.85rem', flexShrink: 0 }}></i>
+                                        <input
+                                            type="text"
+                                            className="profile-edit-input"
+                                            placeholder={ct.placeholder}
+                                            value={contactValues[ct.key] || ''}
+                                            onChange={e => setContactValues({ ...contactValues, [ct.key]: e.target.value })}
+                                        />
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={handleSaveContacts}
+                                    disabled={savingContacts}
+                                    className="profile-save-btn"
+                                >
+                                    {savingContacts ? (
+                                        <><i className="fa-solid fa-spinner fa-spin"></i> Saving…</>
+                                    ) : (
+                                        <><i className="fa-solid fa-check"></i> Save Contacts</>
+                                    )}
+                                </button>
+                            </div>
+                        ) : (
+                            /* ── View Mode ── */
+                            <div className="profile-contact-list">
+                                {profile?.email && (
+                                    <div className="profile-contact-row">
+                                        <i className="fa-solid fa-envelope" style={{ color: 'var(--text-muted)', width: '18px', fontSize: '0.7rem' }}></i>
+                                        <span>{profile.email}</span>
+                                    </div>
+                                )}
+                                {profile?.phone && (
+                                    <div className="profile-contact-row">
+                                        <i className="fa-solid fa-phone" style={{ color: 'var(--text-muted)', width: '18px', fontSize: '0.7rem' }}></i>
+                                        <span>{profile.phone}</span>
+                                    </div>
+                                )}
+                                {trust?.contacts && trust.contacts.map(c => {
+                                    const meta = CONTACT_META[c.contact_type] || CONTACT_META.website;
+                                    const href = meta.prefix
+                                        ? `${meta.prefix}${c.contact_value.replace(/^[@+]/, '')}`
+                                        : c.contact_value;
+                                    return (
+                                        <a key={c.id} href={href} target="_blank" rel="noopener noreferrer" className="profile-contact-row profile-contact-link" style={{ color: meta.color }}>
+                                            <i className={meta.icon} style={{ width: '18px', fontSize: '0.8rem' }}></i>
+                                            <span>{c.contact_value}</span>
+                                        </a>
+                                    );
+                                })}
+                                {!profile?.email && !profile?.phone && (!trust?.contacts || trust.contacts.length === 0) && (
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '0.5rem 0', textAlign: 'center' }}>
+                                        No contacts yet — tap <i className="fa-solid fa-pen" style={{ fontSize: '0.65rem' }}></i> Edit to add
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
-                    {/* Trust Score */}
+                    {/* ═══ TRUST SCORE ═══ */}
                     {trust && (
                         <div className="profile-section">
                             <div className="profile-section-label">
@@ -198,27 +330,110 @@ export default function ProfilePanel({ onClose }: { onClose: () => void }) {
                         </div>
                     )}
 
-                    {/* Documents */}
-                    {trust && trust.documents.length > 0 && (
-                        <div className="profile-section">
-                            <div className="profile-section-label">
-                                <i className="fa-solid fa-file-shield" style={{ fontSize: '0.65rem' }}></i> Verified Documents
+                    {/* ═══ DOCUMENTS (with Upload) ═══ */}
+                    <div className="profile-section">
+                        <div className="profile-section-label">
+                            <i className="fa-solid fa-file-shield" style={{ fontSize: '0.65rem' }}></i> Documents
+                            <button onClick={() => setShowUpload(!showUpload)}
+                                style={{
+                                    marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600, fontFamily: 'inherit',
+                                    color: showUpload ? '#EF4444' : 'var(--agro-green)'
+                                }}>
+                                <i className={`fa-solid ${showUpload ? 'fa-xmark' : 'fa-plus'}`} style={{ marginRight: '0.2rem' }}></i>
+                                {showUpload ? 'Cancel' : 'Upload'}
+                            </button>
+                        </div>
+
+                        {/* Upload Form */}
+                        {showUpload && (
+                            <div className="profile-upload-form">
+                                {/* Document Type */}
+                                <div className="profile-upload-types">
+                                    {DOC_TYPES.map(dt => (
+                                        <button key={dt.key}
+                                            className={`profile-upload-type-btn ${uploadDocType === dt.key ? 'active' : ''}`}
+                                            onClick={() => setUploadDocType(dt.key)}
+                                        >
+                                            <span>{dt.icon}</span>
+                                            <span>{dt.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* File Picker */}
+                                <div
+                                    className="profile-file-dropzone"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    {uploadFile ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <i className="fa-solid fa-file-circle-check" style={{ color: 'var(--agro-green)', fontSize: '1.2rem' }}></i>
+                                            <div style={{ minWidth: 0 }}>
+                                                <div style={{ fontSize: '0.82rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{uploadFile.name}</div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{(uploadFile.size / 1024).toFixed(0)} KB</div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ textAlign: 'center' }}>
+                                            <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '1.5rem', color: 'var(--text-muted)', marginBottom: '0.3rem', display: 'block' }}></i>
+                                            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Tap to select file</div>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PDF, JPG, PNG — max 5MB</div>
+                                        </div>
+                                    )}
+                                </div>
+                                <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
+                                    onChange={e => { if (e.target.files?.[0]) setUploadFile(e.target.files[0]); }} />
+
+                                {/* Upload Button */}
+                                <button
+                                    onClick={handleUploadDoc}
+                                    disabled={!uploadFile || uploading}
+                                    className="profile-save-btn"
+                                >
+                                    {uploading ? (
+                                        <><i className="fa-solid fa-spinner fa-spin"></i> Uploading…</>
+                                    ) : (
+                                        <><i className="fa-solid fa-cloud-arrow-up"></i> Upload Document</>
+                                    )}
+                                </button>
                             </div>
-                            <div className="profile-docs-list">
-                                {trust.documents.map(d => (
+                        )}
+
+                        {/* Existing Documents List */}
+                        <div className="profile-docs-list">
+                            {trust && trust.documents.length > 0 ? (
+                                trust.documents.map(d => (
                                     <div key={d.id} className="profile-doc-item">
                                         <span className="profile-doc-icon">{DOC_ICONS[d.document_type] || '📄'}</span>
                                         <span className="profile-doc-type">{d.document_type}</span>
-                                        {d.is_verified && (
-                                            <span className="profile-doc-verified">
-                                                <i className="fa-solid fa-circle-check"></i> Verified
-                                            </span>
-                                        )}
+                                        <span className={`profile-doc-status ${d.is_verified ? 'verified' : 'pending'}`}>
+                                            <i className={`fa-solid ${d.is_verified ? 'fa-circle-check' : 'fa-clock'}`}></i>
+                                            {d.is_verified ? 'Verified' : 'Pending'}
+                                        </span>
                                     </div>
-                                ))}
-                            </div>
+                                ))
+                            ) : (
+                                !showUpload && (
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '0.5rem 0', textAlign: 'center' }}>
+                                        No documents yet — tap <i className="fa-solid fa-plus" style={{ fontSize: '0.65rem' }}></i> Upload to add
+                                    </div>
+                                )
+                            )}
                         </div>
-                    )}
+                    </div>
+                </div>
+            )}
+
+            {/* Toast */}
+            {toast && (
+                <div style={{
+                    position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+                    background: '#1F2937', color: '#fff', padding: '0.75rem 1.25rem',
+                    borderRadius: '10px', fontSize: '0.82rem', fontWeight: 500,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.25)', zIndex: 10000,
+                    animation: 'viewFadeIn 0.3s ease-out',
+                }}>
+                    {toast}
                 </div>
             )}
         </div>

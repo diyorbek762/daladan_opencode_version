@@ -3700,6 +3700,140 @@ textarea {
   gap: 0.2rem;
 }
 
+.profile-doc-status {
+  font-size: 0.68rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.profile-doc-status.verified {
+  color: #059669;
+}
+
+.profile-doc-status.pending {
+  color: #D97706;
+}
+
+/* ─── Profile Edit Mode ─── */
+.profile-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
+}
+
+.profile-edit-input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.profile-edit-input:focus {
+  border-color: var(--agro-green);
+  box-shadow: 0 0 0 2px rgba(6, 78, 59, 0.1);
+}
+
+.profile-edit-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.profile-save-btn {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--agro-green), var(--agro-green-lighter));
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(6, 78, 59, 0.2);
+}
+
+.profile-save-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
+  transform: translateY(-1px);
+}
+
+.profile-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Profile Upload Form ─── */
+.profile-upload-form {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-upload-types {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.profile-upload-type-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.3rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.profile-upload-type-btn:hover {
+  border-color: var(--agro-green-lighter);
+}
+
+.profile-upload-type-btn.active {
+  border-color: var(--agro-green);
+  background: #F0FDF4;
+  color: var(--agro-green);
+  font-weight: 600;
+}
+
+.profile-file-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--surface-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.profile-file-dropzone:hover {
+  border-color: var(--agro-green);
+  background: rgba(6, 78, 59, 0.02);
+}
+
 /* ─── Safe area insets for modern phones ─── */
 @supports (padding: max(0px)) {
   .nav-mobile-bottom {
