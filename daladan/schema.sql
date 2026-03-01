@@ -5,6 +5,9 @@ CREATE TYPE public.user_language AS ENUM ('uz-Latn', 'uz-Cyrl', 'ru');
 CREATE TABLE public.profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
+  email TEXT,
+  phone TEXT,
+  location TEXT,
   is_farmer BOOLEAN DEFAULT FALSE,
   is_driver BOOLEAN DEFAULT FALSE,
   is_retailer BOOLEAN DEFAULT FALSE,
@@ -30,3 +33,15 @@ CREATE POLICY "Users can update own profile."
 -- Modifications to harvests table
 ALTER TABLE public.harvests
 ADD COLUMN farmer_provides_transport BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE public.harvests
+ADD COLUMN IF NOT EXISTS price_per_kg NUMERIC(10,2);
+
+ALTER TABLE public.harvests
+ADD COLUMN IF NOT EXISTS image_url TEXT;
+
+ALTER TABLE public.harvests
+ADD COLUMN IF NOT EXISTS region TEXT DEFAULT 'Tashkent';
+
+ALTER TABLE public.harvests
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'available';

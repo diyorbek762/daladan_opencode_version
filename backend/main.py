@@ -19,6 +19,7 @@ from backend.routers.ai import router as ai_router
 from backend.routers.auth import router as auth_router
 from backend.routers.escrow import router as escrow_router
 from backend.routers.routing import router as routing_router
+from backend.routers.tracking import router as tracking_router
 from backend.seed import seed_database
 
 # Ensure models are imported so Base.metadata knows about them
@@ -95,6 +96,7 @@ app.include_router(auth_router)
 app.include_router(ai_router)
 app.include_router(escrow_router)
 app.include_router(routing_router)
+app.include_router(tracking_router)
 
 
 # ═══════════════════════════════════════════════════════

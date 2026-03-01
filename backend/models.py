@@ -81,6 +81,9 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     balance = Column(Numeric(12, 2), default=0, nullable=False)  # account balance in USD
     escrow_pin_hash = Column(String(128), nullable=True)  # bcrypt-hashed escrow release PIN
+    current_location = Column(
+        Geometry(geometry_type="POINT", srid=4326), nullable=True
+    )  # live GPS for drivers
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -173,6 +176,9 @@ class DealGroup(Base):
     )
     agreed_price_per_kg = Column(Numeric(8, 2), nullable=True)
     agreed_quantity_kg = Column(Numeric(10, 2), nullable=True)
+    pickup_location = Column(
+        Geometry(geometry_type="POINT", srid=4326), nullable=True
+    )  # freight pickup point
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

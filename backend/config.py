@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     # ── AI / GenAI ──
     GOOGLE_API_KEY: str = ""
+    ORS_API_KEY: str = ""  # Free key from https://openrouteservice.org/dev/#/signup
 
     # ── JWT / Auth ──
     JWT_SECRET_KEY: str = "daladan-super-secret-change-in-production-2026"

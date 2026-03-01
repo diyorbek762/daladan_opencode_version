@@ -6,8 +6,8 @@ import { locales } from '@/i18n';
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Daladan",
-  description: "Agricultural Ecosystem",
+  title: "Daladan — Agricultural Supply Chain Platform",
+  description: "Daladan connects producers, drivers, and retailers in a seamless agricultural supply chain platform.",
 };
 
 export default async function RootLayout(
@@ -17,21 +17,20 @@ export default async function RootLayout(
   }
 ) {
   const { locale } = await props.params;
-
-  // Ensure that the incoming `locale` is valid
   if (!locales.includes(locale as any)) {
     notFound();
   }
-
-  // Providing all messages to the client
-  // side is the easiest way to get started
   const messages = await getMessages();
 
   return (
     <html lang={locale}>
-      <body
-        className={`antialiased bg-gray-50`}
-      >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+      </head>
+      <body className="antialiased">
         <NextIntlClientProvider messages={messages}>
           {props.children}
         </NextIntlClientProvider>

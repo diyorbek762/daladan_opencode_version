@@ -1262,6 +1262,235 @@
             border: none;
         }
 
+        /* ─── Find Loads Button ─── */
+        .find-loads-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.3rem;
+            background: linear-gradient(135deg, #D97706, #F59E0B);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(217, 119, 6, 0.4);
+            transition: all 200ms ease;
+        }
+
+        .find-loads-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(217, 119, 6, 0.5);
+        }
+
+        .find-loads-btn:active {
+            transform: translateY(0);
+        }
+
+        .find-loads-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .find-loads-btn .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btnSpin 0.6s linear infinite;
+        }
+
+        .find-loads-btn.loading .spinner {
+            display: block;
+        }
+
+        .find-loads-btn.loading .btn-icon {
+            display: none;
+        }
+
+        @keyframes btnSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─── Tracking Status Badge ─── */
+        .tracking-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.85rem;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 200ms ease;
+        }
+
+        .tracking-badge .td-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9CA3AF;
+            transition: background 200ms;
+        }
+
+        .tracking-badge.connected .td-dot {
+            background: #10B981;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+
+        .tracking-badge.error .td-dot {
+            background: #EF4444;
+        }
+
+        /* ─── Route Result Panel ─── */
+        .route-result-panel {
+            display: none;
+            background: var(--surface-primary);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            animation: fadeInUp 0.35s ease-out;
+        }
+
+        .route-result-panel.visible {
+            display: block;
+        }
+
+        .route-result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .route-result-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 650;
+            color: var(--text-primary);
+        }
+
+        .route-km-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.1), rgba(4, 120, 87, 0.1));
+            color: var(--agro-green);
+        }
+
+        .route-stops-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .route-stop-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.65rem 0.85rem;
+            background: var(--surface-secondary);
+            border-radius: 10px;
+            transition: background 200ms;
+        }
+
+        .route-stop-item:hover {
+            background: var(--surface-tertiary);
+        }
+
+        .route-stop-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--agro-green);
+            flex-shrink: 0;
+        }
+
+        .route-stop-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .route-stop-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .route-stop-dist {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        .route-stop-type {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            background: #FFFBEB;
+            color: var(--harvest-amber);
+            flex-shrink: 0;
+        }
+
+        .route-ors-note {
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: #FEF3C7;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            color: #92400E;
+            display: none;
+        }
+
+        .route-ors-note.visible {
+            display: block;
+        }
+
+        /* ─── Stop Marker Icon (on map) ─── */
+        .stop-marker-icon {
+            background: none;
+            border: none;
+        }
+
         /* Driver stat cards row */
         .driver-stats-row {
             display: grid;
@@ -3532,6 +3761,35 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Tracking Status Badge -->
+                <div class="tracking-badge" id="tracking-badge">
+                    <span class="td-dot"></span>
+                    <span id="tracking-badge-text">GPS Off</span>
+                </div>
+
+                <!-- Find Loads Button -->
+                <button class="find-loads-btn" id="find-loads-btn" onclick="findLoads()">
+                    <span class="spinner"></span>
+                    <i class="fa-solid fa-magnifying-glass-location btn-icon"></i>
+                    <span>Find Loads</span>
+                </button>
+            </div>
+
+            <!-- Predicted Route Result Panel -->
+            <div class="route-result-panel" id="route-result-panel">
+                <div class="route-result-header">
+                    <div class="route-result-title">
+                        <i class="fa-solid fa-route" style="color:var(--agro-green);"></i>
+                        Predicted Route
+                    </div>
+                    <div class="route-km-badge" id="route-km-badge">
+                        <i class="fa-solid fa-road"></i>
+                        <span id="route-km-value">0 km</span>
+                    </div>
+                </div>
+                <div class="route-stops-list" id="route-stops-list"></div>
+                <div class="route-ors-note" id="route-ors-note"></div>
             </div>
 
             <!-- 2-Column Layout: Map+Deliveries + Pooling Sidebar -->
@@ -4446,6 +4704,386 @@
             window.driverMap = map;
         }
 
+        // ═══════════════════════════════════════════════════════
+        //  SPARSE TRACKING MODULE
+        //  Haversine-throttled watchPosition() + WebSocket
+        // ═══════════════════════════════════════════════════════
+
+        const SparseTracker = (() => {
+            // ── Config ──
+            const DISTANCE_THRESHOLD_M = 200;   // Only send if moved > 200 m
+            const TIME_THRESHOLD_MS = 60000; // Or if 60 seconds have passed
+            const EARTH_RADIUS_M = 6371000;
+            const WS_RECONNECT_MS = 3000;
+            const DEMO_DRIVER_ID = '00000000-0000-0000-0000-000000000001';
+
+            // ── State ──
+            let ws = null;
+            let watchId = null;
+            let lastSentPos = null;     // {lat, lng, timestamp}
+            let lastSentTime = 0;
+            let driverMarker = null;
+            let reconnectTimer = null;
+            let isConnected = false;
+
+            // ── Haversine distance (metres) ──
+            function haversineM(lat1, lng1, lat2, lng2) {
+                const toRad = v => v * Math.PI / 180;
+                const dLat = toRad(lat2 - lat1);
+                const dLng = toRad(lng2 - lng1);
+                const a = Math.sin(dLat / 2) ** 2
+                    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+                    * Math.sin(dLng / 2) ** 2;
+                return EARTH_RADIUS_M * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            }
+
+            // ── Badge UI ──
+            function setBadge(state, text) {
+                const badge = document.getElementById('tracking-badge');
+                const label = document.getElementById('tracking-badge-text');
+                if (!badge || !label) return;
+                badge.className = 'tracking-badge ' + state;
+                label.textContent = text;
+            }
+
+            // ── WebSocket connect ──
+            function connectWS() {
+                if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+
+                const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const url = `${proto}//${location.host}/api/tracking/ws/${DEMO_DRIVER_ID}`;
+
+                try {
+                    ws = new WebSocket(url);
+                } catch (e) {
+                    console.error('[SparseTracker] WebSocket creation failed:', e);
+                    setBadge('error', 'WS Error');
+                    scheduleReconnect();
+                    return;
+                }
+
+                ws.onopen = () => {
+                    isConnected = true;
+                    setBadge('connected', 'Live');
+                    console.log('[SparseTracker] WebSocket connected');
+                    clearTimeout(reconnectTimer);
+                };
+
+                ws.onmessage = (evt) => {
+                    try {
+                        const data = JSON.parse(evt.data);
+                        if (data.nearest_orders && data.nearest_orders.length > 0) {
+                            console.log(`[SparseTracker] ${data.nearest_orders.length} nearby order(s)`);
+                        }
+                    } catch (e) {
+                        console.warn('[SparseTracker] Failed to parse WS message:', e);
+                    }
+                };
+
+                ws.onerror = (e) => {
+                    console.error('[SparseTracker] WebSocket error:', e);
+                    setBadge('error', 'WS Error');
+                };
+
+                ws.onclose = () => {
+                    isConnected = false;
+                    setBadge('', 'Disconnected');
+                    console.log('[SparseTracker] WebSocket closed, will reconnect…');
+                    scheduleReconnect();
+                };
+            }
+
+            function scheduleReconnect() {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = setTimeout(connectWS, WS_RECONNECT_MS);
+            }
+
+            // ── Send GPS over WebSocket ──
+            function sendGPS(lat, lng) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                ws.send(JSON.stringify({ lat, lng }));
+                lastSentPos = { lat, lng };
+                lastSentTime = Date.now();
+            }
+
+            // ── Should we send this position? ──
+            function shouldSend(lat, lng) {
+                if (!lastSentPos) return true;                             // First position
+                if (Date.now() - lastSentTime >= TIME_THRESHOLD_MS) return true; // 60s elapsed
+                const dist = haversineM(lastSentPos.lat, lastSentPos.lng, lat, lng);
+                return dist >= DISTANCE_THRESHOLD_M;                       // Moved > 200 m
+            }
+
+            // ── Update driver marker on map ──
+            function updateMarker(lat, lng) {
+                if (!window.driverMap) return;
+
+                if (!driverMarker) {
+                    const icon = L.divIcon({
+                        className: 'truck-marker-icon',
+                        html: `<div style="width:44px;height:44px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.45);border:3px solid #fff;">
+                            <i class="fa-solid fa-location-crosshairs" style="color:#fff;font-size:1rem;"></i>
+                        </div>`,
+                        iconSize: [44, 44],
+                        iconAnchor: [22, 22]
+                    });
+                    driverMarker = L.marker([lat, lng], { icon, zIndexOffset: 2000 }).addTo(window.driverMap);
+                    driverMarker.bindTooltip('Your Position', {
+                        className: 'route-label', direction: 'top', offset: [0, -24]
+                    });
+                } else {
+                    driverMarker.setLatLng([lat, lng]);
+                }
+            }
+
+            // ── Start geolocation tracking ──
+            function startTracking() {
+                if (!navigator.geolocation) {
+                    setBadge('error', 'No GPS');
+                    console.warn('[SparseTracker] Geolocation not supported');
+                    return;
+                }
+
+                connectWS();
+
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const { latitude: lat, longitude: lng } = position.coords;
+                        updateMarker(lat, lng);
+
+                        if (shouldSend(lat, lng)) {
+                            sendGPS(lat, lng);
+                            console.log(`[SparseTracker] Sent GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+                        }
+                    },
+                    (err) => {
+                        console.warn('[SparseTracker] Geolocation error:', err.message);
+                        setBadge('error', 'GPS Error');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 10000,
+                        timeout: 15000
+                    }
+                );
+
+                setBadge('', 'Waiting for GPS…');
+            }
+
+            // ── Stop tracking ──
+            function stopTracking() {
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+                clearTimeout(reconnectTimer);
+                isConnected = false;
+                setBadge('', 'GPS Off');
+            }
+
+            // ── Public API ──
+            return {
+                start: startTracking,
+                stop: stopTracking,
+                getDriverId: () => DEMO_DRIVER_ID,
+                isConnected: () => isConnected,
+                getLastPos: () => lastSentPos,
+                haversineM,
+            };
+        })();
+
+
+        // ═══════════════════════════════════════════════════════
+        //  FIND LOADS — Route Prediction & Rendering
+        // ═══════════════════════════════════════════════════════
+
+        // Layer group to hold route elements (can be cleared on next call)
+        let routeLayerGroup = null;
+
+        async function findLoads() {
+            const btn = document.getElementById('find-loads-btn');
+            const panel = document.getElementById('route-result-panel');
+            const stopsList = document.getElementById('route-stops-list');
+            const kmBadge = document.getElementById('route-km-value');
+            const orsNote = document.getElementById('route-ors-note');
+
+            // Loading state
+            btn.classList.add('loading');
+
+            try {
+                const driverId = SparseTracker.getDriverId();
+                const resp = await fetch(`/api/tracking/predict-route/${driverId}`);
+
+                if (resp.status === 404) {
+                    // Driver not tracked yet — inject a position so the endpoint works
+                    // Use Chartak, Namangan as default
+                    const fallbackLat = 41.053;
+                    const fallbackLng = 71.768;
+
+                    // Send via a quick WebSocket handshake
+                    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${proto}//${location.host}/api/tracking/ws/${driverId}`;
+                    const tempWs = new WebSocket(wsUrl);
+                    await new Promise((resolve, reject) => {
+                        tempWs.onopen = () => {
+                            tempWs.send(JSON.stringify({ lat: fallbackLat, lng: fallbackLng }));
+                            setTimeout(() => { tempWs.close(); resolve(); }, 500);
+                        };
+                        tempWs.onerror = reject;
+                        setTimeout(reject, 3000);
+                    });
+
+                    // Retry
+                    const retryResp = await fetch(`/api/tracking/predict-route/${driverId}`);
+                    if (!retryResp.ok) throw new Error(`API error: ${retryResp.status}`);
+                    var data = await retryResp.json();
+                } else if (!resp.ok) {
+                    throw new Error(`API error: ${resp.status}`);
+                } else {
+                    var data = await resp.json();
+                }
+
+                // Clear previous route from map
+                if (routeLayerGroup && window.driverMap) {
+                    window.driverMap.removeLayer(routeLayerGroup);
+                }
+                routeLayerGroup = L.layerGroup().addTo(window.driverMap);
+
+                // ── Render stops list ──
+                if (!data.stops || data.stops.length === 0) {
+                    stopsList.innerHTML = `
+                        <div style="text-align:center;padding:1rem;color:var(--text-secondary);font-size:0.88rem;">
+                            <i class="fa-solid fa-inbox" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;color:var(--text-muted);"></i>
+                            No pending orders found within range.
+                        </div>
+                    `;
+                    kmBadge.textContent = '0 km';
+                    panel.classList.add('visible');
+                    btn.classList.remove('loading');
+                    return;
+                }
+
+                // Populate stops
+                const colors = ['#064E3B', '#D97706', '#DC2626'];
+                stopsList.innerHTML = data.stops.map((stop, i) => `
+                    <div class="route-stop-item">
+                        <div class="route-stop-num" style="background:${colors[i % colors.length]}">${stop.order}</div>
+                        <div class="route-stop-info">
+                            <div class="route-stop-name">${stop.title}</div>
+                            <div class="route-stop-dist">${stop.distance_from_prev_km.toFixed(1)} km from previous</div>
+                        </div>
+                        <span class="route-stop-type">${stop.type}</span>
+                    </div>
+                `).join('');
+
+                // Total km
+                kmBadge.textContent = `${data.total_km.toFixed(1)} km`;
+
+                // Duration if available
+                if (data.duration_min) {
+                    kmBadge.textContent += ` · ${Math.round(data.duration_min)} min`;
+                }
+
+                // ORS note
+                if (data.ors_error) {
+                    orsNote.textContent = data.ors_error;
+                    orsNote.classList.add('visible');
+                } else {
+                    orsNote.classList.remove('visible');
+                }
+
+                // Show panel
+                panel.classList.add('visible');
+
+                // ── Draw route on map ──
+                // Driver position marker
+                if (data.driver) {
+                    const driverIcon = L.divIcon({
+                        className: 'stop-marker-icon',
+                        html: `<div style="width:36px;height:36px;background:linear-gradient(135deg,#2563EB,#3B82F6);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(37,99,235,0.4);border:3px solid #fff;">
+                            <i class="fa-solid fa-truck-fast" style="color:#fff;font-size:0.85rem;"></i>
+                        </div>`,
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    });
+                    L.marker([data.driver.lat, data.driver.lng], { icon: driverIcon, zIndexOffset: 1500 })
+                        .addTo(routeLayerGroup)
+                        .bindTooltip('You', { className: 'route-label', direction: 'top', offset: [0, -20] });
+                }
+
+                // Stop markers
+                data.stops.forEach((stop, i) => {
+                    const color = colors[i % colors.length];
+                    const stopIcon = L.divIcon({
+                        className: 'stop-marker-icon',
+                        html: `<div style="width:30px;height:30px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.25);border:2px solid #fff;color:#fff;font-size:0.7rem;font-weight:700;font-family:Inter,sans-serif;">${stop.order}</div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    L.marker([stop.lat, stop.lng], { icon: stopIcon, zIndexOffset: 1000 + i })
+                        .addTo(routeLayerGroup)
+                        .bindTooltip(`${stop.title} (${stop.distance_from_prev_km.toFixed(1)} km)`, {
+                            className: 'route-label', direction: 'top', offset: [0, -18]
+                        });
+                });
+
+                // ── Draw polyline ──
+                if (data.polyline) {
+                    // ORS returns encoded polyline or GeoJSON geometry
+                    try {
+                        if (typeof data.polyline === 'object' && data.polyline.coordinates) {
+                            // GeoJSON geometry: coordinates are [lng, lat]
+                            const coords = data.polyline.coordinates.map(c => [c[1], c[0]]);
+                            L.polyline(coords, {
+                                color: '#064E3B',
+                                weight: 5,
+                                opacity: 0.85,
+                                lineCap: 'round',
+                                lineJoin: 'round'
+                            }).addTo(routeLayerGroup);
+                        }
+                    } catch (e) {
+                        console.warn('[FindLoads] Failed to draw polyline:', e);
+                    }
+                } else {
+                    // Fallback: straight lines between driver → stops
+                    const points = [];
+                    if (data.driver) points.push([data.driver.lat, data.driver.lng]);
+                    data.stops.forEach(s => points.push([s.lat, s.lng]));
+
+                    L.polyline(points, {
+                        color: '#064E3B',
+                        weight: 4,
+                        opacity: 0.7,
+                        dashArray: '10, 8',
+                        lineCap: 'round',
+                        lineJoin: 'round'
+                    }).addTo(routeLayerGroup);
+                }
+
+                // Fit map to route bounds
+                const allPoints = [];
+                if (data.driver) allPoints.push([data.driver.lat, data.driver.lng]);
+                data.stops.forEach(s => allPoints.push([s.lat, s.lng]));
+                if (allPoints.length >= 2 && window.driverMap) {
+                    window.driverMap.fitBounds(L.latLngBounds(allPoints).pad(0.15));
+                }
+
+                showToast(`Route found: ${data.stops.length} stop(s), ${data.total_km.toFixed(1)} km`, 'success', 4000);
+
+            } catch (err) {
+                console.error('[FindLoads] Error:', err);
+                showToast('Failed to find loads: ' + err.message, 'error', 4000);
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+
+
         // Initialize — default to Producer view, then lazy-init the map
         document.addEventListener('DOMContentLoaded', () => {
             switchView('producer');
@@ -4453,6 +5091,9 @@
             // Initialize the map once the DOM is ready
             // (even though it's hidden, we create it, then invalidateSize on switch)
             initDriverMap();
+
+            // Start sparse GPS tracking (will connect WebSocket when GPS is available)
+            SparseTracker.start();
         });
     </script>
 
