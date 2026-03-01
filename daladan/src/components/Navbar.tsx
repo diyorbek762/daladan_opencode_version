@@ -4,6 +4,8 @@ import { useState, useCallback, memo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import ChatView from './ChatView';
+import ProfilePanel from './ProfilePanel';
 
 const LANG_CONFIG = [
     { code: 'uz-Latn', label: "O'zbekcha", flag: '🇺🇿' },
@@ -86,6 +88,7 @@ export default function Navbar() {
     const t = useTranslations('Navbar');
     const [signingOut, setSigningOut] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activePanel, setActivePanel] = useState<'chat' | 'profile' | null>(null);
 
     const currentRole = navLinks.find(l => pathname.includes(`/${l.key}`))?.key || '';
 
@@ -93,6 +96,11 @@ export default function Navbar() {
         setSigningOut(true);
         await supabase.auth.signOut();
         router.push(`/${locale}/login`);
+    };
+
+    const togglePanel = (panel: 'chat' | 'profile') => {
+        setActivePanel(prev => prev === panel ? null : panel);
+        setMobileMenuOpen(false);
     };
 
     return (
@@ -134,8 +142,28 @@ export default function Navbar() {
                     })}
                 </div>
 
-                {/* Right: Language + Sign Out */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {/* Right: Panel Icons + Language + Sign Out */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    {/* Chat Icon */}
+                    <button
+                        onClick={() => togglePanel('chat')}
+                        className={`nav-icon-btn ${activePanel === 'chat' ? 'active' : ''}`}
+                        title="Chat"
+                    >
+                        <i className="fa-solid fa-comments"></i>
+                    </button>
+
+                    {/* Profile Icon */}
+                    <button
+                        onClick={() => togglePanel('profile')}
+                        className={`nav-icon-btn ${activePanel === 'profile' ? 'active' : ''}`}
+                        title="Profile"
+                    >
+                        <i className="fa-solid fa-user-circle"></i>
+                    </button>
+
+                    <div style={{ width: '1px', height: '20px', background: 'var(--border-color)', margin: '0 0.2rem' }}></div>
+
                     <LanguageSwitcher />
                     <button onClick={handleSignOut} disabled={signingOut} className="nav-signout-btn">
                         <i className={`fa-solid ${signingOut ? 'fa-spinner fa-spin' : 'fa-right-from-bracket'}`} style={{ fontSize: '0.72rem' }}></i>
@@ -183,7 +211,7 @@ export default function Navbar() {
                     return (
                         <button
                             key={link.key}
-                            onClick={() => { router.push(`/${locale}/${link.key}`); setMobileMenuOpen(false); }}
+                            onClick={() => { router.push(`/${locale}/${link.key}`); setMobileMenuOpen(false); setActivePanel(null); }}
                             className={`nav-bottom-tab ${isActive ? 'active' : ''}`}
                         >
                             <i className={`fa-solid ${link.icon}`}></i>
@@ -191,7 +219,40 @@ export default function Navbar() {
                         </button>
                     );
                 })}
+                {/* Chat Tab */}
+                <button
+                    onClick={() => togglePanel('chat')}
+                    className={`nav-bottom-tab ${activePanel === 'chat' ? 'active' : ''}`}
+                >
+                    <i className="fa-solid fa-comments"></i>
+                    <span>Chat</span>
+                </button>
+                {/* Profile Tab */}
+                <button
+                    onClick={() => togglePanel('profile')}
+                    className={`nav-bottom-tab ${activePanel === 'profile' ? 'active' : ''}`}
+                >
+                    <i className="fa-solid fa-user-circle"></i>
+                    <span>Profile</span>
+                </button>
             </div>
+
+            {/* ── Slide-in Panel Overlay ── */}
+            {activePanel && (
+                <>
+                    <div className="slide-panel-backdrop" onClick={() => setActivePanel(null)}></div>
+                    <div className={`slide-panel slide-panel-${activePanel}`}>
+                        {activePanel === 'chat' && (
+                            <div className="slide-panel-content">
+                                <ChatView />
+                            </div>
+                        )}
+                        {activePanel === 'profile' && (
+                            <ProfilePanel onClose={() => setActivePanel(null)} />
+                        )}
+                    </div>
+                </>
+            )}
         </>
     );
 }

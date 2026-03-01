@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trust Wallet — Daladan</title>
+    <meta name="description"
+        content="View your Trust Score, Leaderboard Rank, verified documents, and contacts on the Daladan platform." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Trust score ring animation */
+        @keyframes score-fill {
+            from {
+                stroke-dashoffset: 314;
+            }
+        }
+
+        .score-ring {
+            animation: score-fill 1.2s ease-out forwards;
+        }
+
+        /* Rank badge shimmer */
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .badge-shimmer {
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        /* Card hover lift */
+        .card-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Fade in */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.5s ease-out both;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <!-- ────── HEADER ────── -->
+    <header class="bg-gradient-to-r from-indigo-900/80 via-purple-900/60 to-gray-950 border-b border-white/10">
+        <div class="max-w-4xl mx-auto px-6 py-8 flex items-center gap-6">
+            <!-- Avatar placeholder -->
+            <div id="avatar"
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold ring-4 ring-indigo-400/30 shrink-0">
+                ?
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <h1 id="user-name" class="text-2xl font-bold truncate">Loading…</h1>
+                <p id="user-role" class="text-sm text-indigo-300 uppercase tracking-wider mt-0.5">—</p>
+                <p id="user-region" class="text-xs text-gray-400 mt-1">—</p>
+            </div>
+
+            <!-- Rank badge -->
+            <div id="rank-badge"
+                class="shrink-0 badge-shimmer rounded-xl px-5 py-3 text-center bg-gradient-to-r from-yellow-500/20 via-yellow-400/30 to-yellow-500/20 border border-yellow-400/30">
+                <p class="text-xs text-yellow-300/80 uppercase tracking-widest font-medium">Rank</p>
+                <p id="rank-number" class="text-3xl font-extrabold text-yellow-300">#—</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-10 space-y-10">
+
+        <!-- ────── TRUST SCORE ────── -->
+        <section
+            class="fade-up flex flex-col sm:flex-row items-center gap-8 bg-gray-900/60 border border-white/5 rounded-2xl p-8">
+            <!-- Ring gauge -->
+            <div class="relative w-36 h-36 shrink-0">
+                <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#1e1b4b" stroke-width="10" />
+                    <circle id="score-arc" cx="60" cy="60" r="50" fill="none" stroke="url(#grad)" stroke-width="10"
+                        stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" class="score-ring" />
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#818cf8" />
+                            <stop offset="100%" stop-color="#c084fc" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="score-value" class="text-3xl font-extrabold">0</span>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wider">/100</span>
+                </div>
+            </div>
+
+            <div class="text-center sm:text-left">
+                <h2 class="text-xl font-semibold">Trust Score</h2>
+                <p class="text-gray-400 text-sm mt-1">Based on your ratings, reliability, and verified documents.</p>
+                <div class="flex gap-4 mt-4 text-sm">
+                    <div class="bg-gray-800 rounded-lg px-3 py-2">
+                        <p class="text-gray-400 text-[10px] uppercase">Ratings</p>
+                        <p id="total-ratings" class="font-semibold text-lg">0</p>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg px-3 py-2">
+                        <p class="text-gray-400 text-[10px] uppercase">Avg Score</p>
+                        <p id="avg-score" class="font-semibold text-lg">0.0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ────── CONTACTS ────── -->
+        <section class="fade-up" style="animation-delay: .1s">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contacts
+            </h2>
+            <div id="contacts-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <p class="text-gray-500 text-sm col-span-full">No public contacts yet.</p>
+            </div>
+        </section>
+
+        <!-- ────── VERIFIED DOCUMENTS ────── -->
+        <section class="fade-up" style="animation-delay: .2s">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Verified Sifat Documents
+            </h2>
+            <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-gray-500 text-sm col-span-full">No verified documents yet.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ────── CONTACT ICONS MAP ────── -->
+    <script>
+        const CONTACT_ICONS = {
+            telegram: {
+                icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>`,
+                color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20',
+                linkPrefix: 'https://t.me/',
+            },
+            whatsapp: {
+                icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`,
+                color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20',
+                linkPrefix: 'https://wa.me/',
+            },
+            phone: {
+                icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`,
+                color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20',
+                linkPrefix: 'tel:',
+            },
+            website: {
+                icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>`,
+                color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20',
+                linkPrefix: '',
+            },
+        };
+
+        const DOC_ICONS = {
+            license: '🪪',
+            certificate: '📜',
+            passport: '🛂',
+        };
+
+        // ────── LOAD PROFILE ──────
+
+        async function loadTrustProfile() {
+            // Get user ID from URL query param (?id=...) or JWT
+            const params = new URLSearchParams(window.location.search);
+            let userId = params.get('id');
+
+            if (!userId) {
+                // Try from JWT in localStorage
+                const token = localStorage.getItem('daladan_token');
+                if (token) {
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        userId = payload.sub;
+                    } catch (_) { /* ignore */ }
+                }
+            }
+
+            if (!userId) {
+                document.getElementById('user-name').textContent = 'No user ID';
+                return;
+            }
+
+            try {
+                const resp = await fetch(`/api/trust/users/${userId}/trust-profile`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                renderProfile(data);
+            } catch (err) {
+                console.error('Failed to load trust profile:', err);
+                document.getElementById('user-name').textContent = 'Error loading profile';
+            }
+        }
+
+        function renderProfile(p) {
+            // Header
+            document.getElementById('avatar').textContent = (p.full_name || '?')[0].toUpperCase();
+            document.getElementById('user-name').textContent = p.full_name;
+            document.getElementById('user-role').textContent = p.role;
+            document.getElementById('user-region').textContent = p.region || '';
+
+            // Rank badge color
+            const badge = document.getElementById('rank-badge');
+            const rankNum = document.getElementById('rank-number');
+            rankNum.textContent = p.leaderboard_rank > 0 ? `#${p.leaderboard_rank}` : '—';
+
+            if (p.leaderboard_rank === 1) {
+                badge.className = badge.className.replace(/from-yellow.*?border-yellow-\S+/g, '');
+                badge.classList.add('bg-gradient-to-r', 'from-yellow-400/30', 'via-amber-400/40', 'to-yellow-400/30', 'border', 'border-yellow-400/50');
+                rankNum.classList.replace('text-yellow-300', 'text-amber-300');
+            } else if (p.leaderboard_rank <= 3) {
+                rankNum.classList.replace('text-yellow-300', 'text-gray-300');
+            }
+
+            // Score ring
+            const score = Math.min(Math.max(p.trust_score, 0), 100);
+            const offset = 314 - (314 * score / 100);
+            document.getElementById('score-arc').style.strokeDashoffset = offset;
+            document.getElementById('score-value').textContent = score.toFixed(1);
+            document.getElementById('total-ratings').textContent = p.total_ratings;
+            document.getElementById('avg-score').textContent = p.avg_score.toFixed(1);
+
+            // Contacts
+            const contactsGrid = document.getElementById('contacts-grid');
+            if (p.contacts && p.contacts.length > 0) {
+                contactsGrid.innerHTML = p.contacts.map(c => {
+                    const meta = CONTACT_ICONS[c.contact_type] || CONTACT_ICONS.website;
+                    const href = meta.linkPrefix
+                        ? `${meta.linkPrefix}${c.contact_value.replace(/^[@+]/, '')}`
+                        : c.contact_value;
+                    return `
+                <a href="${href}" target="_blank" rel="noopener"
+                   class="flex items-center gap-3 ${meta.bg} border rounded-xl px-4 py-3 card-lift">
+                    <span class="${meta.color}">${meta.icon}</span>
+                    <div class="min-w-0">
+                        <p class="text-xs text-gray-400 capitalize">${c.contact_type}</p>
+                        <p class="text-sm font-medium truncate">${c.contact_value}</p>
+                    </div>
+                </a>`;
+                }).join('');
+            }
+
+            // Documents
+            const docsGrid = document.getElementById('docs-grid');
+            if (p.documents && p.documents.length > 0) {
+                docsGrid.innerHTML = p.documents.map(d => {
+                    const icon = DOC_ICONS[d.document_type] || '📄';
+                    return `
+                <div class="bg-gray-900/60 border border-white/5 rounded-xl p-4 card-lift">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${icon}</span>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium capitalize truncate">${d.document_type}</p>
+                            <p class="text-xs text-gray-500 truncate">${d.file_url}</p>
+                        </div>
+                        <span class="shrink-0 flex items-center gap-1 text-xs ${d.is_verified ? 'text-green-400' : 'text-gray-500'}">
+                            ${d.is_verified
+                            ? '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg> Verified'
+                            : 'Pending'}
+                        </span>
+                    </div>
+                </div>`;
+                }).join('');
+            }
+        }
+
+        // Boot
+        document.addEventListener('DOMContentLoaded', loadTrustProfile);
+    </script>
+
+</body>
+
+</html>

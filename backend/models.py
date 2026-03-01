@@ -94,6 +94,11 @@ class User(Base):
     shipments_as_driver = relationship(
         "Shipment", back_populates="driver", foreign_keys="Shipment.driver_id"
     )
+    ratings_received = relationship(
+        "UserRating", back_populates="reviewee", foreign_keys="UserRating.reviewee_id"
+    )
+    documents = relationship("UserDocument", back_populates="user")
+    contacts = relationship("UserContact", back_populates="user")
 
     def __repr__(self) -> str:
         return f"<User {self.full_name} ({self.role.value})>"
@@ -285,3 +290,70 @@ class AuditLog(Base):
 
     def __repr__(self) -> str:
         return f"<AuditLog {self.action} {self.table_name} [{self.record_id}]>"
+
+
+class UserRating(Base):
+    """Post-handshake rating between users on a completed deal."""
+    __tablename__ = "user_ratings"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    reviewer_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    reviewee_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    deal_group_id = Column(
+        UUID(as_uuid=True), ForeignKey("deal_groups.id", ondelete="CASCADE"), nullable=False
+    )
+    score = Column(Integer, nullable=False)  # 1–5
+    on_time = Column(Boolean, default=True)
+    as_described = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    reviewer = relationship("User", foreign_keys=[reviewer_id])
+    reviewee = relationship("User", foreign_keys=[reviewee_id], back_populates="ratings_received")
+
+    def __repr__(self) -> str:
+        return f"<UserRating {self.score}★ by {self.reviewer_id} for {self.reviewee_id}>"
+
+
+class UserDocument(Base):
+    """Verified identity / quality document linked to a user profile."""
+    __tablename__ = "user_documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    file_url = Column(String(500), nullable=False)
+    document_type = Column(String(50), nullable=False)  # 'license', 'certificate', etc.
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="documents")
+
+    def __repr__(self) -> str:
+        return f"<UserDocument {self.document_type} — verified={self.is_verified}>"
+
+
+class UserContact(Base):
+    """Public contact info for a user (Telegram, WhatsApp, etc.)."""
+    __tablename__ = "user_contacts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    contact_type = Column(String(30), nullable=False)   # 'telegram', 'whatsapp', 'phone', 'website'
+    contact_value = Column(String(255), nullable=False)
+    is_public = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="contacts")
+
+    def __repr__(self) -> str:
+        return f"<UserContact {self.contact_type}: {self.contact_value}>"
